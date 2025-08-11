@@ -100,6 +100,9 @@ Title should always be something like “Here are the 5 [things] that [make them
 Goal:
 - Produce the CSV only, with the exact header above. No extra commentary.
 
+
+Here are the ideas I'd like you to implement:
+- 
 ~~~
 
 
