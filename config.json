@@ -1,0 +1,10 @@
+{
+  "out_dir": "out",
+  "images_dir": "images",
+  "used_dir": "images_used",
+  "logo_path": "assets/logo.png",
+  "background_fit": "cover",
+  "background_opacity": 1.0,
+  "background_dim": "soft",
+  "seed": 42
+}

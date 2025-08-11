@@ -1,0 +1,37 @@
+post_id,heading,subheading,body
+"Carousel 1","5 Investment Strategies The Best Investors Use",,
+"Carousel 1","Technical Analysis","Use statistical patterns to predict future movements","Use price and volume to spot trends. Focus on support, resistance, and RSI."
+"Carousel 1","Trading the news","Figure out the impact of the news before everyone else","Look for second and third order effects. It often takes days for information to be priced in."
+"Carousel 1","Value Investing","Pay less than intrinsic value","Look for low P/E. Strong fundamentals. Prices below intrinsic value. Warren Buffett earned $100B+ using this."
+"Carousel 1","Market Sentiment","Sentiment often drives short term moves","If many investors are positive, prices may keep rising even if fundamentals lag."
+"Carousel 1","Growth investing","Focus on fast growing companies","Find revenue growth of 20%+ with expanding markets. Early Amazon investors saw 100,000%+ returns."
+"Carousel 2","The 6-Point Earnings Call Checklist Pro Investors Use",,
+"Carousel 2","Did they beat expectations?","Beating or missing consensus drives price","Earnings can fall 20% and still rally if the market expected a 50% drop."
+"Carousel 2","Is guidance bullish?","The future matters more than the past","Raising next quarter guidance is bullish. Lowered guidance can trigger 20%+ drops."
+"Carousel 2","Are margins rising?","Margins signal pricing power and efficiency","Rising margins show strength. Falling margins warn of trouble, even if revenue grows."
+"Carousel 2","What is free cash flow saying?","Free cash flow often matters more than earnings","Strong FCF means the firm generates cash."
+"Carousel 2","Is management tone positive?","Listen for clear, specific answers","Detail is a good sign. Vague answers and excuses are red flags."
+"Carousel 2","What segments aren't performing?","Identify winners and laggards","A weak division can mask growth. Review results by region and product."
+"Carousel 3","5 Technical Indicators That Actually Predict Price Moves",,
+"Carousel 3","RSI (Relative Strength Index)","Has the price moved too far?","Above 70 is overbought. Below 30 is oversold. Useful for reversal odds. Reported accuracy about 68%."
+"Carousel 3","Support & Resistance Levels","Prior highs and lows that price respects","Prices often bounce at prior lows and stall at prior highs. Trade near these levels."
+"Carousel 3","Volume Confirmation","Confirm patterns with volume","Breakouts often show 2x or more average volume. Low volume moves fail about 75% of the time."
+"Carousel 4","Warren Buffett's 5 Rules for Finding 10-Baggers",,
+"Carousel 4","Economic moat","Prefer durable competitive advantages","Look for brand strength, network effects, and patents. These raise barriers to entry."
+"Carousel 4","Margin of Safety","Pay below intrinsic value","Aim for a 50% discount to intrinsic value. It reduces downside if your estimate is off."
+"Carousel 4","Owner Earnings","Look past reported profits","Net Income + Depreciation - CapEx approximates cash to owners."
+"Carousel 4","Management Quality","Assess incentives and skill","Prefer CEOs with 10%+ ownership who buy on dips. Actions show alignment."
+"Carousel 4","Simple Business Model","If you cannot explain it, do not buy it","Prefer focused companies that do one thing well. Complexity can hide problems."
+"Carousel 5","The 5-Step DCF Formula That Values Any Stock",,
+"Carousel 5","How a DCF works","Forecast cash, then discount it","Estimate future free cash flows and a terminal value. Discount both to today. Sum them for intrinsic value."
+"Carousel 5","Project Free Cash Flow","Start with the next 5 years","Use last year's FCF and a realistic growth rate. Industry average minus 5% is safer. Aggressive assumptions hurt accuracy."
+"Carousel 5","Calculate Terminal Value","Value after the forecast period","Use perpetual growth of 2% to 3% near GDP. Higher rates inflate value."
+"Carousel 5","Choose Discount Rate","Account for risk","Use 10% for stable firms. Use 15% or more for risky firms. Reflect uncertainty."
+"Carousel 5","Discount to Present Value","Bring future cash to today","Divide each year's FCF by (1 + discount rate)^years. Do the same for terminal value. Sum the results."
+"Carousel 5","Compare to Market Price","Make the decision","If intrinsic value is 50% or more above price, consider a buy. If lower, avoid or wait."
+"Carousel 6","The Only 5 Financial Metrics You Need to Judge Any Stock",,
+"Carousel 6","Return on Equity (ROE)","How efficiently a company uses shareholder money","15%+ ROE means $0.15 profit per $1 of equity each year. Below 10% suggests value destruction."
+"Carousel 6","Debt-to-Equity Ratio","How much the company owes vs what it owns","Below 0.5 is conservative. Above 2.0 is risky leverage that can fail in a downturn."
+"Carousel 6","Free Cash Flow Yield","The cash return for investors","Compute FCF divided by market cap. A 10% yield signals strong cash generation."
+"Carousel 6","Revenue Growth Rate","How fast sales are increasing","20%+ is high growth. 10% to 20% is healthy. Below 5% is stagnation."
+"Carousel 6","Gross Margin Trends","Pricing power and customer retention","Rising margins show pricing power. Falling margins can signal price pressure."
