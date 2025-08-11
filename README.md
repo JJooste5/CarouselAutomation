@@ -50,7 +50,6 @@ Rules:
 - One row per slide, in order.
 - First row for each post_id is the title slide. Use heading only. Leave subheading and body blank.
 - No layout names or slide numbers.
-- Short sentences. No metaphors. No emoji.
 - No manual line breaks inside fields.
 - Quote fields with commas. Escape quotes by doubling them.
 
