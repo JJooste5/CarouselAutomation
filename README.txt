@@ -1,24 +1,50 @@
-Quick start
+# Carousel Renderer
 
-1) Use content_template.csv as a model.
-   One row per slide. Vary number of slides per post freely.
-   Columns:
-     post_id   : identifier for the carouse. This allows us to make multiple carousels all at once. Post 1, post 2. i.e. we can have multiple slides per carousel, and multiple carousels.
-     slide     : 1-based slide index
-     slide_type: "title" or "content"
-     layout    : exact name from layouts.json, or leave empty to randomize within type
-     title_line: for the first slide (single line)
-     heading   : for content slides
-     subheading: for content slides
-     body      : for content slides. Use \n for line breaks.
+## Setup
+1. Install dependencies.
+   ~~~bash
+   pip install -r requirements.txt
+   ~~~
+2. Put background images in the `images` folder.
+3. Add your content in `content.csv` or `content.xlsx`.
 
-6) Run:
-   python render.py --content content_template.csv --layouts layouts.json --config config.json
+## How to use
+- Add rows to `content.csv`. Keep the header: `post_id,heading,subheading,body`.
+- It also works with Excel files.
+- Run:
+  ~~~bash
+  python render.py
+  ~~~
+- Images are saved to the `out` folder.
 
-Notes
-- Size is 1080x1080.
-- Each slide picks a random image from images/. The script moves it into images_used/ so it will not be reused next time.
-- If images/ is empty, the canvas background color shows.
-- To reset image pool, move files back from images_used/ to images/.
-- To force a specific layout, fill the "layout" column. Otherwise the script will pick one at random within the slide type.
-- Tweak sizes and boxes in layouts.json to taste.
+## How to customise the images
+- Most of `layouts.json` is now redundant.
+- Text placement is chosen automatically.
+- The script looks for the darkest area, with some randomness.
+- It will not place text in the same location twice in a row.
+
+## How it works (brief)
+- Picks a random background from `images`.
+- Moves used files to `images_used`.
+- Analyses brightness by region.
+- Chooses the darkest region with randomness.
+- Avoids repeating the last text location.
+- Renders title and content slides.
+- Writes JPEGs to `out`.
+
+---
+
+## Example `content.csv`
+~~~csv
+post_id,heading,subheading,body
+1,"5 ways to save",,
+1,"Track spending","See where money goes","Review your expenses weekly."
+1,"Cut subscriptions","Remove what you do not use","Cancel unused services to save money."
+1,"Cook at home","Lower daily costs","Plan simple meals for the week."
+1,"Buy in bulk","Reduce unit prices","Stock essentials when prices are low."
+1,"Set savings goal","Stay on track","Pick a clear amount and date."
+~~~
+
+---
+
+## Prompt to turn any text into the format we need in the CSV
