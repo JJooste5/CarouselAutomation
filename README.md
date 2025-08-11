@@ -10,6 +10,10 @@
 
 ## How to use
 - Add rows to `content.csv`. Keep the header: `post_id,heading,subheading,body`.
+- Each row is it's own slide.
+- Post_id defines which of the slides are for which post.
+- The first slide with a given post id will be assumed to be the title slide. So, subheading and body will be ignored for this one.
+- The formatting of text will be automatically decided.
 - It also works with Excel files.
 - Run:
   ~~~bash
