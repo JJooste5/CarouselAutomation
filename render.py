@@ -28,21 +28,21 @@ from PIL import Image, ImageDraw, ImageFont, ImageColor, ImageOps, ImageFilter, 
 
 # Canvas/Image dimensions
 CANVAS_W = 1080
-CANVAS_H = 1080
+CANVAS_H = 1350
 
 # Shadow parameters
-SHADOW_BLUR_RADIUS = 5
-SHADOW_OFFSET_TEXT = 6  # Shadow offset for text
-SHADOW_OFFSET_LOGO_LARGE = 5  # Shadow offset for large logos (title slide)
-SHADOW_OFFSET_LOGO_SMALL = 4  # Shadow offset for small logos (content slides)
-SHADOW_COLOR_TEXT = (0, 0, 0, 45)  # Semi-transparent black for text shadows
+SHADOW_BLUR_RADIUS = 10
+SHADOW_OFFSET_TEXT = 8  # Shadow offset for text
+SHADOW_OFFSET_LOGO_LARGE = 6  # Shadow offset for large logos (title slide)
+SHADOW_OFFSET_LOGO_SMALL = 5  # Shadow offset for small logos (content slides)
+SHADOW_COLOR_TEXT = (0, 0, 0, 180)  # Semi-transparent black for text shadows
 SHADOW_OPACITY_LOGO_LARGE = 0.6  # Shadow opacity for large logos
 SHADOW_OPACITY_LOGO_SMALL = 0.4  # Shadow opacity for small logos
 
 # Background image processing parameters
-BG_BRIGHTNESS_FACTOR = 0.65  # Reduce brightness (0.75 = 75% of original)
-BG_CONTRAST_FACTOR = 1.2  # Reduce contrast (0.9 = 90% of original)
-BG_SATURATION_FACTOR = 1.3  # Increase saturation (1.2 = 120% saturation)
+BG_BRIGHTNESS_FACTOR = 0.55  # Reduce brightness (0.75 = 75% of original)
+BG_CONTRAST_FACTOR = 1.25  # Reduce contrast (0.9 = 90% of original)
+BG_SATURATION_FACTOR = 1.4  # Increase saturation (1.2 = 120% saturation)
 BG_WARM_COLOR = (255, 235, 205)  # Warm beige/golden color for temperature adjustment
 BG_WARM_BLEND_FACTOR = 0.2  # How much warm color to blend (12%)
 BG_RED_BOOST_FACTOR = 1.05  # Boost red channel slightly
@@ -62,18 +62,20 @@ LOGO_DEFAULT_Y = 40  # Default Y position for content slide logo
 
 # Font sizes (these override whatever is in layouts.json)
 FONT_SIZE_TITLE = 64  # Font size for title slides
-FONT_SIZE_HEADING = 56  # Font size for all content headings
-FONT_SIZE_SUBHEADING = 34  # Font size for all content subheadings
-FONT_SIZE_BODY = 26  # Font size for all content body text
+FONT_SIZE_HEADING = 98  # Font size for all content headings
+FONT_SIZE_SUBHEADING = 54  # Font size for all content subheadings
+FONT_SIZE_BODY = 38  # Font size for all content body text
 
 # Text spacing between elements (in pixels)
 GAP_HEADING_TO_SUBHEADING = 20  # Gap between heading and subheading
 GAP_SUBHEADING_TO_BODY = 15     # Gap between subheading and body
 
 # Text fitting parameters
-MIN_FONT_SIZE_CONTENT = 18  # Minimum font size for content text
-MIN_FONT_SIZE_TITLE = 24  # Minimum font size for title text
-FONT_SIZE_SHRINK_STEP = 2  # How much to reduce font size when shrinking to fit
+FONT_SIZE_SHRINK_STEP = 2  # Step to shrink font size when fitting text
+MIN_FONT_SIZE_CONTENT = 24  # Minimum font size for content text
+MIN_FONT_SIZE_TITLE = 36  # Minimum font size for title text
+MAX_FONT_SIZE_CONTENT = 120  # Maximum font size for content text
+MAX_FONT_SIZE_TITLE = 96 
 
 # Output parameters
 JPEG_QUALITY = 95  # JPEG compression quality
@@ -82,7 +84,7 @@ JPEG_OPTIMIZE = True  # Optimize JPEG encoding
 
 # Default text parameters
 DEFAULT_TEXT_COLOR = "#FFFFFF"  # White text
-DEFAULT_LINE_SPACING = 1.25  # Line spacing multiplier
+DEFAULT_LINE_SPACING = 1.2  # Line spacing multiplier
 DEFAULT_ALIGN = "left"  # Text alignment
 
 # Image file extensions
@@ -113,12 +115,44 @@ def load_font(path: str, size: int) -> ImageFont.FreeTypeFont:
     except Exception as e:
         raise RuntimeError(f"Failed to load font '{path}' size {size}. {e}")
 
-def measure_text(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.FreeTypeFont) -> Tuple[int, int]:
-    # PIL textbbox gives (left, top, right, bottom)
-    bbox = draw.textbbox((0, 0), text, font=font)
-    return bbox[2] - bbox[0], bbox[3] - bbox[1]
+def measure_text(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.FreeTypeFont, spacing_factor: float = 0.95) -> Tuple[int, int]:
+    """Calculate text dimensions with custom character spacing."""
+    if not text:
+        return 0, 0
+    
+    # Calculate width with character spacing
+    total_width = 0
+    max_height = 0
+    for i, char in enumerate(text):
+        bbox = draw.textbbox((0, 0), char, font=font)
+        char_width = bbox[2] - bbox[0]
+        char_height = bbox[3] - bbox[1]
+        max_height = max(max_height, char_height)
+        
+        if i < len(text) - 1:  # Don't apply spacing factor to the last character
+            total_width += int(char_width * spacing_factor)
+        else:
+            total_width += char_width
+    
+    return total_width, max_height
 
-def wrap_text_to_width(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.FreeTypeFont, max_width: int) -> List[str]:
+def draw_text_with_spacing(draw: ImageDraw.ImageDraw, x: int, y: int, text: str, 
+                          font: ImageFont.FreeTypeFont, fill: str, spacing_factor: float = 0.95):
+    """Draw text with custom character spacing. spacing_factor < 1 reduces spacing."""
+    current_x = x
+    for char in text:
+        draw.text((current_x, y), char, font=font, fill=fill)
+        char_width, _ = measure_text(draw, char, font)
+        # Add space width if this is a space character
+        if char == ' ':
+            space_width, _ = measure_text(draw, ' ', font)
+            current_x += space_width
+        else:
+            current_x += int(char_width * spacing_factor)
+
+def wrap_text_to_width(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.FreeTypeFont, max_width: int, spacing_factor: float = 0.95) -> List[str]:
+    
+
     if not text:
         return [""]
     lines: List[str] = []
@@ -130,7 +164,7 @@ def wrap_text_to_width(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.Fre
         line = words[0]
         for w in words[1:]:
             trial = line + " " + w
-            tw, _ = measure_text(draw, trial, font)
+            tw, _ = measure_text(draw, trial, font, spacing_factor)
             if tw <= max_width:
                 line = trial
             else:
@@ -145,7 +179,7 @@ def fit_text_block(draw: ImageDraw.ImageDraw, text: str, font_path: str, max_fon
     size = max_font_size
     while size >= min_font_size:
         font = load_font(font_path, size)
-        lines = wrap_text_to_width(draw, text, font, box_w)
+        lines = wrap_text_to_width(draw, text, font, box_w, spacing_factor=0.95)
         if max_lines is not None and len(lines) > max_lines:
             lines = lines[:max_lines]
         ascent, descent = font.getmetrics()
@@ -276,12 +310,13 @@ def analyze_image_brightness(img_path: str) -> Dict[str, float]:
     img = img.resize((CANVAS_W, CANVAS_H), Image.LANCZOS)
     
     # Define regions based on your layouts
+    # Define regions based on your layouts
     regions = {
-        "content_top_right": (520, 80, 960, 310),      # x, y, x+w, y+h
-        "content_mid_right": (520, 320, 960, 540),
-        "content_bottom_right": (520, 620, 960, 1040),
-        "content_bottom_left": (120, 620, 560, 1040),
-        "content_center": (180, 240, 900, 910)
+        "content_top_right": (80, 140, 1000, 350),      # x, y, x+w, y+h
+        "content_mid_right": (80, 450, 1000, 660),
+        "content_bottom_right": (80, 880, 1000, 1310),
+        "content_bottom_left": (80, 880, 1000, 1310),   # Now same as bottom_right since text spans full width
+        "content_center": (80, 425, 1000, 1150)
     }
     
     brightness = {}
@@ -404,12 +439,13 @@ def render_title_slide(canvas: Image.Image,
         # Draw shadow first
         shadow_img = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
         shadow_draw = ImageDraw.Draw(shadow_img)
-        shadow_draw.text((x + shadow_offset, y + shadow_offset), ln, font=font, fill=shadow_color)
+        draw_text_with_spacing(shadow_draw, x + shadow_offset, y + shadow_offset, ln, font, shadow_color)
         shadow_img = shadow_img.filter(ImageFilter.GaussianBlur(SHADOW_BLUR_RADIUS))
         canvas.alpha_composite(shadow_img)
         
         # Draw main text
-        draw.text((x, y), ln, font=font, fill=color)
+        draw_text_with_spacing(draw, x, y, ln, font, color)
+
         y += step
 
 def draw_text_block(canvas: Image.Image, frame: Dict[str, Any], value: str, field_type: str = None) -> int:
@@ -454,7 +490,7 @@ def draw_text_block(canvas: Image.Image, frame: Dict[str, Any], value: str, fiel
         canvas.alpha_composite(shadow_img)
         
         # Draw main text
-        draw.text((x, y), ln, font=font, fill=frame.get("color", DEFAULT_TEXT_COLOR))
+        draw_text_with_spacing(draw, x, y, ln, font, frame.get("color", DEFAULT_TEXT_COLOR))
         y += step
     
     # Return the total height used
@@ -508,28 +544,98 @@ def render_content_slide(canvas: Image.Image, layout: Dict[str, Any], heading: s
     for frame in layout["frames"]:
         frames_by_field[frame["field"]] = frame.copy()
     
-    # Start with heading position from layout
+    # Set uniform boundaries - 80px from each side
+    SIDE_MARGIN = 80
+    for field in ["heading", "subheading", "body"]:
+        if field in frames_by_field:
+            frame = frames_by_field[field]
+            # Set frame to span from 80px to (canvas_width - 80px)
+            frame["x"] = SIDE_MARGIN
+            frame["w"] = CANVAS_W - (2 * SIDE_MARGIN)
+        
+        # Calculate the minimum scaling factor needed across all text elements
+        draw = ImageDraw.Draw(canvas)
+        min_scale_factor = 1.0
+        field_configs = []
+    
+    # First pass: find the minimum scale factor needed
+    for field_type, text, base_size in [
+        ("heading", heading, FONT_SIZE_HEADING),
+        ("subheading", subheading, FONT_SIZE_SUBHEADING),
+        ("body", body, FONT_SIZE_BODY)
+    ]:
+        if text and field_type in frames_by_field:
+            frame = frames_by_field[field_type]
+            # Find what size would fit
+            test_font, test_lines, test_step = fit_text_block(
+                draw, text, frame["font"], base_size,
+                frame["w"], frame["h"], 
+                frame.get("line_spacing", DEFAULT_LINE_SPACING),
+                frame.get("align", DEFAULT_ALIGN),
+                min_font_size=MIN_FONT_SIZE_CONTENT,
+                max_lines=frame.get("max_lines")
+            )
+            # Calculate scale factor
+            actual_size = test_font.size
+            scale_factor = actual_size / base_size
+            min_scale_factor = min(min_scale_factor, scale_factor)
+            field_configs.append((field_type, text, base_size))
+    
+    # Second pass: render all text with the unified scale factor
     current_y = frames_by_field.get("heading", {}).get("y", 120)
     
-    # Draw heading if present
-    if heading and "heading" in frames_by_field:
-        frame = frames_by_field["heading"].copy()
-        frame["y"] = current_y
-        height = draw_text_block(canvas, frame, heading, "heading")
-        current_y += height + GAP_HEADING_TO_SUBHEADING
-    
-    # Draw subheading if present
-    if subheading and "subheading" in frames_by_field:
-        frame = frames_by_field["subheading"].copy()
-        frame["y"] = current_y
-        height = draw_text_block(canvas, frame, subheading, "subheading")
-        current_y += height + GAP_SUBHEADING_TO_BODY
-    
-    # Draw body if present
-    if body and "body" in frames_by_field:
-        frame = frames_by_field["body"].copy()
-        frame["y"] = current_y
-        draw_text_block(canvas, frame, body, "body")
+    for field_type, text, base_size in field_configs:
+        if text:
+            frame = frames_by_field[field_type].copy()
+            frame["y"] = current_y
+            # Apply unified scale factor
+            scaled_size = int(base_size * min_scale_factor)
+            frame["size"] = scaled_size  # Override with scaled size
+            
+            # Draw with the scaled size
+            font = load_font(frame["font"], scaled_size)
+            lines = wrap_text_to_width(draw, text, font, frame["w"])
+            if frame.get("max_lines") and len(lines) > frame["max_lines"]:
+                lines = lines[:frame["max_lines"]]
+            
+            ascent, descent = font.getmetrics()
+            line_h = ascent + descent
+            step = int(round(line_h * frame.get("line_spacing", DEFAULT_LINE_SPACING)))
+            
+            # Draw text with shadows
+            shadow_offset = SHADOW_OFFSET_TEXT
+            shadow_color = SHADOW_COLOR_TEXT
+            
+            y = frame["y"]
+            for ln in lines:
+                tw, th = measure_text(draw, ln, font)
+                align = frame.get("align", DEFAULT_ALIGN)
+                if align == "center":
+                    x = frame["x"] + (frame["w"] - tw) // 2
+                elif align == "right":
+                    x = frame["x"] + frame["w"] - tw
+                else:
+                    x = frame["x"]
+                
+                # Draw shadow first
+                shadow_img = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
+                shadow_draw = ImageDraw.Draw(shadow_img)
+                draw_text_with_spacing(shadow_draw, x + shadow_offset, y + shadow_offset, ln, font, shadow_color)
+                shadow_img = shadow_img.filter(ImageFilter.GaussianBlur(SHADOW_BLUR_RADIUS))
+                canvas.alpha_composite(shadow_img)
+                
+                # Draw main text
+                draw_text_with_spacing(draw, x, y, ln, font, frame.get("color", DEFAULT_TEXT_COLOR))
+                y += step
+            
+            # Calculate actual height used
+            height = len(lines) * step if lines else 0
+            
+            # Update position for next element
+            if field_type == "heading":
+                current_y += height + GAP_HEADING_TO_SUBHEADING
+            elif field_type == "subheading":
+                current_y += height + GAP_SUBHEADING_TO_BODY
 
 def ensure_dir(path: str):
     os.makedirs(path, exist_ok=True)
@@ -577,14 +683,12 @@ def choose_layout(layouts: Dict[str, Any], slide_type: str, requested: Optional[
             valid_layouts = [name for name in valid_layouts if name != last_used_layout]
         
         if valid_layouts:
-            # Calculate weights - darker regions get higher weights
-            # Invert brightness (255 - brightness) and square for stronger preference
             weights = []
             for layout in valid_layouts:
                 darkness = 255 - brightness_data[layout]
                 weight = darkness ** 2  # Square to favor darker regions more
                 weights.append(weight)
-            
+
             # Normalize weights
             total_weight = sum(weights)
             if total_weight > 0:
